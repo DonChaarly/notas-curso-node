@@ -90,11 +90,13 @@ const usuariosPatch = (req, res = response) => {
 
 const usuariosDelete = async(req, res = response) => {
 
+    /*33. Para eliminar un elemento necesitamos al menos el id */
     const { id } = req.params;
 
-    // Fisicamente lo borramos
+    /*34. El metodo findByIdAndDelete elimina por completo el elemento en la base de datos */
     // const usuario = await Usuario.findByIdAndDelete( id );
 
+    /*34. Podriamos querer mantener el registro y solo cambiar el estado a false con el findByIdAndUpdate*/
     const usuario = await Usuario.findByIdAndUpdate( id, { estado: false } );
 
 

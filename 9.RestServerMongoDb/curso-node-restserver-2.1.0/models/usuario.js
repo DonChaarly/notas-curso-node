@@ -39,8 +39,9 @@ const UsuarioSchema = Schema({
 });
 
 
-
+//con methods.toJson se puede agregar codigo que se ejecutara cuando se cree una instancia de esta clase mongoose
 UsuarioSchema.methods.toJSON = function() {
+    //en este caso se esta desestrucutrando los campos del objeto para despues devolver solo los que nos interesan
     const { __v, password, ...usuario  } = this.toObject();
     return usuario;
 }

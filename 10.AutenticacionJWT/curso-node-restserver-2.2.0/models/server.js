@@ -10,6 +10,7 @@ class Server {
         this.port = process.env.PORT;
 
         this.usuariosPath = '/api/usuarios';
+        /*1. Dentro del constructor se establece una nueva ruta para las autenticaiones */
         this.authPath     = '/api/auth';
 
         // Conectar a base de datos
@@ -41,7 +42,7 @@ class Server {
     }
 
     routes() {
-        
+        /*2.Dentro del metodo routes se llaman las rutas de autenticacion definidas en su archivo de rutas  -> routes/auth.js */
         this.app.use( this.authPath, require('../routes/auth'));
         this.app.use( this.usuariosPath, require('../routes/usuarios'));
     }
