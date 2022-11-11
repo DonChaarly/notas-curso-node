@@ -9,16 +9,30 @@ const Usuario = require('../models/usuario');
 
 const usuariosGet = async(req = request, res = response) => {
 
+    /*27. Para obtener todos los elementos de una tabla de forma paginada se hace lo siguiente
+          El usurio nos puede mandar los parametros de limite y el numero de registros a omitir, 
+          esto lo sacaremos de req.query y le colocamos valores por default */
     const { limite = 5, desde = 0 } = req.query;
+    /*30. A los metodos de recuperacion de mongoose se les puede colocar condiciones para recuperar solo
+          los registros que cumplan con la condicion,
+          como que la columna estado del registro sea true */
     const query = { estado: true };
 
+    /*31. Podemos utilizar una Promise.all para hacer el await de todos las recuperaciones que necesitemos en vez de hacer await por cada una */
     const [ total, usuarios ] = await Promise.all([
+
+        /*29. El metodo countDocuments nos devuelte el numero total de registros que tenemos en la tabla */
         Usuario.countDocuments(query),
+        /*28. con el metodo find recuperamos todos los registros de una tabla
+              con el metodo limit establecemos un limite de registros que queremos recuperar, 
+              con skip establecemos el numero de registros a omitir
+              se tienen que castear a Number los valores para no obtener un error */
         Usuario.find(query)
             .skip( Number( desde ) )
             .limit(Number( limite ))
     ]);
 
+    /*32. Finalmente regresamos en un json nuestros valores */
     res.json({
         total,
         usuarios
@@ -48,6 +62,11 @@ const usuariosPost = async(req, res = response) => {
 
 const usuariosPut = async(req, res = response) => {
 
+    /*25. Para actualizar un elemento de la base de datos de mongodb se tiene que tener a consideracion lo siguiente
+          Se debe pasar al meno el id para identificar el elemento
+          se puede desestrucutrar los datos para hacer valiidaciones a parte
+          sacamos el _id porque este lo genera mongodb y chocara con nuestro campo id
+          Se debe volver a encryptar la contrasena si es que nos paso una nueva contrasena */
     const { id } = req.params;
     const { _id, password, google, correo, ...resto } = req.body;
 
@@ -57,6 +76,7 @@ const usuariosPut = async(req, res = response) => {
         resto.password = bcryptjs.hashSync( password, salt );
     }
 
+    /*26. El metodo findByIdAndUpdate nos ayuda a actualizar los datos de un elemento en mongodb */
     const usuario = await Usuario.findByIdAndUpdate( id, resto );
 
     res.json(usuario);

@@ -1,11 +1,15 @@
 
 const { Router } = require('express');
-/*14. La libreria de express-validator nos sirve para agregar middlewares a nuestras rutas
-      que nos serviran para validar campos como el email, que un campo sea unico, etc */
 const { check } = require('express-validator');
 
+const {
+    validarCampos,
+    validarJWT,
+    esAdminRole,
+    tieneRole
+} = require('../middlewares');
 
-const { validarCampos } = require('../middlewares/validar-campos');
+
 const { esRoleValido, emailExiste, existeUsuarioPorId } = require('../helpers/db-validators');
 
 const { usuariosGet,
@@ -26,26 +30,20 @@ router.put('/:id',[
     validarCampos
 ],usuariosPut );
 
-/*15. Para especificar middlewares, se pasa en las rutas como segundo parametro un array de los middlewares que queramos colocar */
 router.post('/',[
-    /*16. Dentro utilizaremos la funcion check a la cual -> middlewares/validar-campos.js
-          como primer parametro se le coloca el campo a revisar
-          El segundo parametro sera el mensaje a mostrar en caso de que el campo no sea valido
-          Seguido de esto se coloca la validacion que queramos que haga */
     check('nombre', 'El nombre es obligatorio').not().isEmpty(),
     check('password', 'El password debe de ser más de 6 letras').isLength({ min: 6 }),
     check('correo', 'El correo no es válido').isEmail(),
     check('correo').custom( emailExiste ),
     // check('rol', 'No es un rol válido').isIn(['ADMIN_ROLE','USER_ROLE']),
-    /*22. Para establecer validaciones personalizadas se utiliza el metodo custom al cual se le coloca -> helpers/db-validatos.js
-          un callback que sera la validacion a ejecutar
-    */
     check('rol').custom( esRoleValido ), 
-    /*21. Los middlewares personalizados se colocan dentro del array de middlewares como cualquier otro */
     validarCampos
 ], usuariosPost );
 
 router.delete('/:id',[
+    validarJWT,
+    // esAdminRole,
+    tieneRole('ADMIN_ROLE', 'VENTAR_ROLE','OTRO_ROLE'),
     check('id', 'No es un ID válido').isMongoId(),
     check('id').custom( existeUsuarioPorId ),
     validarCampos
